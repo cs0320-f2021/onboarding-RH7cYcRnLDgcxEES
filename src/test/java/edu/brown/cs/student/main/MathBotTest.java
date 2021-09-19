@@ -50,14 +50,4 @@ public class MathBotTest {
     assertEquals(-6.25, output3, 0.01);
   }
 
-//  @Test
-//  public void testDoubleNegSub() {
-//    MathBot matherator9004 = new MathBot();
-//    double output = matherator9004.subtract(5.5, -10);
-//    assertEquals(15.5, output, 0.01);
-//    double output2 = matherator9004.subtract(-3.75, -10);
-//    assertEquals(6.25, output2, 0.01);
-//    double output3 = matherator9004.subtract(-10, -3.75);
-//    assertEquals(-6.25, output3, 0.01);
-//  }
 }

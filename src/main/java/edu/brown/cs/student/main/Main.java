@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.*;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -63,25 +64,80 @@ public final class Main {
     // TODO: Add your REPL here!
     try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
       String input;
+      StarSorter starSorter = new StarSorter();
+
       while ((input = br.readLine()) != null) {
         try {
           input = input.trim();
           String[] arguments = input.split(" ");
-          System.out.println("ARGS\n\nINPUT\n"+input+"\nOUTPUT");
+          for (String str : arguments) {
+            str = str.trim();
+          }
           MathBot mathBot = new MathBot();
+
           if (arguments[0].equals("add")) {
             System.out.println(mathBot.add(Double.parseDouble(arguments[1]),Double.parseDouble(arguments[2])));
           }
           else if (arguments[0].equals("subtract")) {
             System.out.println(mathBot.subtract(Double.parseDouble(arguments[1]),Double.parseDouble(arguments[2])));
           }
-          else {
-            throw new RuntimeException("Incorrect operation");
+          else if (arguments[0].equals("stars") && arguments.length == 2) {
+            int n = starSorter.processCSV(arguments[1]);
+            System.out.println("Read "+ n +" stars from "+arguments[1]);
           }
-          System.out.println("END");
+          else if (arguments[0].equals("naive_neighbors")) {
+            if (starSorter.checkIsPopulated()) {
+              int k = Integer.parseInt(arguments[1]);
+              if (k<0) {
+                throw new RuntimeException("Number of neighbors cannot be less than 0");
+              }
+              else {
+                ArrayList<Star> closestStars = new ArrayList<Star>();
+                if (arguments.length == 5 && !input.contains("\"")) {
+                  //find stars by point
+                  closestStars = starSorter.naiveNeighborsXYZ(
+                          k, Double.parseDouble(arguments[2]),
+                          Double.parseDouble(arguments[3]),
+                          Double.parseDouble(arguments[4]), null);
+                }
+                else if (arguments.length > 2 && input.contains("\"")){
+                  //find stars by name
+//                  int len = arguments[2].length();
+//                  if (arguments[2].substring(0,1).equals("\"") && arguments[2].substring(len-1,len).equals("\"")) {
+//                    closestStars = starSorter.naiveNeighborsStarName(
+//                            k, arguments[2].substring(1,len-1));
+//                  }
+                  if (input.indexOf("\"") != input.length()-1 && input.endsWith("\"")) {
+//                    System.out.println(input.substring(input.indexOf("\"") + 1, input.length() - 1));
+                    closestStars = starSorter.naiveNeighborsStarName(
+                            k, input.substring(input.indexOf("\"") + 1, input.length() - 1));
+                  }
+                  else {
+                    throw new RuntimeException("Quotes required around star name.");
+                  }
+                }
+                else {
+                  throw new RuntimeException("Incorrect argument formatting.");
+                }
+                for (Star s: closestStars) {
+                  System.out.println(s.getStarID() +" >Dist: "+s.getDistance());
+//                  System.out.println(s.getStarID());
+                }
+              }
+
+            }
+            else {
+              throw new RuntimeException("Must input CSV before searching for neighbors.");
+            }
+
+          }
+          else {
+            throw new RuntimeException("Incorrect operation: input not valid");
+          }
         } catch (Exception e) {
           // e.printStackTrace();
-          System.out.println("ERROR: We couldn't process your input");
+          System.out.println("ERROR: We couldn't process your input\n"+e);
+          e.printStackTrace();
         }
       }
     } catch (Exception e) {
